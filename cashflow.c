@@ -2,7 +2,7 @@
  * File              : cashflow.c
  * Author            : Igor V. Sementsov <ig.kuzm@gmail.com>
  * Date              : 13.06.2022
- * Last Modified Date: 14.06.2022
+ * Last Modified Date: 23.06.2022
  * Last Modified By  : Igor V. Sementsov <ig.kuzm@gmail.com>
  */
 
@@ -132,6 +132,7 @@ void cashflow_new(
 		.children_expenses = 0,
 		.bank_credit = 0,
 		.total_income = 0,
+		.passive_income = 0,
 		.total_expenses = 0,
 		.cashflow = 0	
 	};
@@ -212,7 +213,7 @@ int cashflow_for_each_callback(void *user_data, int argc, char *argv[], char *ti
 		switch (i) {
 			case 0:  strcpy(item.uuid, buff)             ; break;
 			case 1:  item.date = atoi(buff)              ; break;
-			case 2:  strcpy(item.uuid, buff)             ; break;
+			case 2:  strcpy(item.profession, buff)       ; break;
 			case 3:  item.salary = atoi(buff)            ; break;
 			case 4:  item.dividents = atoi(buff)		 ; break;
 			case 5:  item.rent = atoi(buff)				 ; break;
@@ -446,9 +447,10 @@ int cashflow_add_active_callback(void * user_data, cashflow_t * cashflow, char *
 	
 	char SQL[BUFSIZ];
 	sprintf(SQL, "UPDATE cashflow SET %s = %d WHERE uuid = '%s'", key, value, cashflow->uuid);
-	if (sqlite_connect_execute(SQL, t->filepath)){
+	int res = sqlite_connect_execute(SQL, t->filepath);
+	if (res){
 		if (t->callback)
-			t->callback(user_data, NULL, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
+			t->callback(user_data, NULL, NULL, STR("cashflow: Can't execute SQL: %s. Error code: %d\n", SQL, res));
 		return 1;
 	}
 	
@@ -517,7 +519,7 @@ cashflow_add_active(
 			"'%s', "
 			"%ld, "
 			"%d, "
-			"'%s'', "
+			"'%s', "
 			"%d, "
 			"%d, "
 			"%d "
@@ -593,16 +595,19 @@ int cashflow_remove_active_callback(void * user_data, cashflow_t * cashflow, cha
 	
 	char SQL[BUFSIZ];
 	sprintf(SQL, "UPDATE cashflow SET %s = %d WHERE uuid = '%s'", key, value, cashflow->uuid);
-	if (sqlite_connect_execute(SQL, t->filepath)){
+	int res;
+	res = sqlite_connect_execute(SQL, t->filepath);
+	if (res){
 		if (t->callback)
-			t->callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
+			t->callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s. Error code: %d\n", SQL, res));
 		return 1;
 	}
 
 	sprintf(SQL, "DELETE FROM cashflow_actives WHERE uuid = '%s'", cashflow_active->uuid);	
-	if (sqlite_connect_execute(SQL, t->filepath)){
+	res = sqlite_connect_execute(SQL, t->filepath); 
+	if (res){
 		if (t->callback)
-			t->callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
+			t->callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s. Error code: %d\n", SQL, res));
 		return 1;
 	}
 	
