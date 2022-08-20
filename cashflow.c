@@ -216,7 +216,8 @@ char *cashflow_for_each_sql_request(
 			
 						 ,predicate
 	);
-	
+
+	return SQL;
 }
 
 struct cashflow_for_each_data {
@@ -292,10 +293,8 @@ cashflow_for_each(
 
 	char * SQL = cashflow_for_each_sql_request(predicate);
 
-	//log
-	if (callback)
-		callback(user_data, NULL, SQL);
-	
+	printf("SQL: %s\n", SQL);	
+
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_for_each_callback)){
 		if (callback)
 			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
