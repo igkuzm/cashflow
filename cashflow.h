@@ -116,6 +116,18 @@ extern "C"{
 				)
 			);
 
+	void cashflow_get(
+			const char * filepath,
+			const char * uuid,
+			const char * predicate,
+			void * user_data,
+			int (*callback)(
+				void * user_data,
+				cashflow_t * cashflow,
+				char * error
+				)
+			);
+
 	//set value for key
 	int cashflow_set_value_for_key(
 			const char * filepath,
