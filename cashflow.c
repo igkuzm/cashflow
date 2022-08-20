@@ -880,14 +880,14 @@ cashflow_add_passive(
 		return;
 	}
 
-	struct cashflow_add_passive_data t = {
-		.user_data = user_data,
-		.callback = callback,
-		.filepath = (char *)filepath,
-		.cashflow_passive = &cashflow_passive
-	};
+	//struct cashflow_add_passive_data t = {
+		//.user_data = user_data,
+		//.callback = callback,
+		//.filepath = (char *)filepath,
+		//.cashflow_passive = &cashflow_passive
+	//};
 
-	cashflow_for_each(filepath, STR("uuid == '%s'", cashflow_uuid), &t, cashflow_add_passive_callback);
+	//cashflow_for_each(filepath, STR("uuid == '%s'", cashflow_uuid), &t, cashflow_add_passive_callback);
 }
 
 struct cashflow_add_child_data {
