@@ -931,7 +931,7 @@ cashflow_add_child(
 		.user_data = user_data,
 		.callback = callback
 	};
-	//cashflow_add_passive(t.filepath, cashflow_uuid, CP_CHILD, "child", 0, cashflow.child_cost, t.user_data, t.callback);
+	cashflow_add_passive(t.filepath, cashflow_uuid, CP_CHILD, "child", 0, cashflow.child_cost, t.user_data, t.callback);
 }	
 
 
