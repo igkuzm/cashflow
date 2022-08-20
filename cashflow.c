@@ -193,6 +193,55 @@ void cashflow_new(
 		callback(user_data, &cashflow, NULL);
 }
 
+char *cashflow_for_each_sql_request(
+		const char * filepath,
+		const char * predicate)
+{
+	char * SQL = malloc(2048);
+	if (SQL == NULL) return NULL;
+	sprintf(SQL, 
+		                 "SELECT "
+	/*uuid*/        	 "uuid as cashflowuuid"
+	/*date*/             ", date"
+	/*profession*/       ", profession"
+	/*salary*/           ", salary as salary"
+	/*dividents*/        ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE type = %d AND cashflow_uuid = cashflowuuid) as dividents"
+    /*rent*/             ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE type = %d AND cashflow_uuid = cashflowuuid) as rent"
+    /*business*/         ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE type = %d AND cashflow_uuid = cashflowuuid) as business"
+    /*taxes*/            ", taxes as taxes"
+    /*mortgage*/         ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as mortgage"
+    /*education_credit*/ ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as education_credit"
+    /*car_credit*/       ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as car_credit"
+    /*creditcard*/       ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as creditcard" 
+    /*some_credits*/     ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as some_credits"
+    /*other_expenses*/   ", other_expenses as other_expenses"
+    /*child_cost*/       ", child_cost" 
+    /*children_expenses*/", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as children_expenses"
+    /*bank_credit*/      ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as bank_credit"
+    /*child_count*/      ", (SELECT 0 + COUNT(uuid)   FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid)"
+	/*passive_income*/   ", (dividents + rent + business) as passive_income"
+    /*total_income*/     ", (salary + passive_income) as total_income"
+    /*total_expenses*/   ", (taxes + mortgage + education_credit + car_credit + creditcard + some_credits + other_expenses + children_expenses + bank_credit) as total_expenses"
+    /*cashflow*/         ", (total_income - total_expenses) as cashflow"
+
+						 "FROM cashflow %s"
+						 ,CA_STOCS
+						 ,CA_PROPERTY	
+						 ,CA_BUSINESS	
+						 ,CP_MORTGAGE	
+						 ,CP_EDUCATION_CREDIT	
+						 ,CP_CAR_CREDIT	
+						 ,CP_CREDIT_CARD	
+						 ,CP_SOME_CREDIT	
+						 ,CP_CHILD	
+						 ,CP_BANK_CREDIT	
+						 ,CP_CHILD	
+			
+						 ,predicate
+	);
+	
+}
+
 struct cashflow_for_each_data {
 	void * user_data;
 	int (*callback)(void * user_data, cashflow_t * cashflow, char * error);
@@ -212,22 +261,27 @@ int cashflow_for_each_callback(void *user_data, int argc, char *argv[], char *ti
 
 		switch (i) {
 			case 0:  strcpy(item.uuid, buff)             ; break; //uuid TEXT
-			case 1:  item.date = atoi(buff)              ; break; //date
+			case 1:  item.date              = atoi(buff) ; break; //date
 			case 2:  strcpy(item.profession, buff)       ; break; //profession 
-			case 3:  item.salary = atoi(buff)            ; break; //salary
-			case 4:  item.dividents = atoi(buff)		 ; break; //dividents
-			case 5:  item.rent = atoi(buff)				 ; break; //rent
-			case 6:  item.business = atoi(buff)			 ; break; //business
-			case 7:  item.taxes = atoi(buff)			 ; break; //taxes
-			case 8:  item.mortgage = atoi(buff)			 ; break; //mortgage
-			case 9:  item.education_credit = atoi(buff)  ; break; //education_credit 
-			case 10: item.car_credit = atoi(buff)		 ; break; //car_credit
-			case 11: item.creditcard = atoi(buff)		 ; break; //creditcard       
-			case 12: item.some_credits = atoi(buff)		 ; break; //some_credits     
-			case 13: item.other_expenses = atoi(buff)	 ; break; //other_expenses   
-			case 14: item.child_cost = atoi(buff)		 ; break; //child_cost       
+			case 3:  item.salary            = atoi(buff) ; break; //salary
+			case 4:  item.dividents         = atoi(buff) ; break; //dividents
+			case 5:  item.rent              = atoi(buff) ; break; //rent
+			case 6:  item.business          = atoi(buff) ; break; //business
+			case 7:  item.taxes             = atoi(buff) ; break; //taxes
+			case 8:  item.mortgage          = atoi(buff) ; break; //mortgage
+			case 9:  item.education_credit  = atoi(buff) ; break; //education_credit
+			case 10: item.car_credit        = atoi(buff) ; break; //car_credit
+			case 11: item.creditcard        = atoi(buff) ; break; //creditcard
+			case 12: item.some_credits      = atoi(buff) ; break; //some_credits
+			case 13: item.other_expenses    = atoi(buff) ; break; //other_expenses
+			case 14: item.child_cost        = atoi(buff) ; break; //child_cost
 			case 15: item.children_expenses = atoi(buff) ; break; //children_expenses
-			case 16: item.bank_credit = atoi(buff)		 ; break; //bank_credit      
+			case 16: item.bank_credit       = atoi(buff) ; break; //bank_credit
+			case 17: item.child_count       = atoi(buff) ; break; //child_count
+			case 18: item.passive_income    = atoi(buff) ; break; //passive_income
+			case 19: item.total_income      = atoi(buff) ; break; //total_income
+			case 20: item.total_expenses    = atoi(buff) ; break; //total_expenses
+			case 21: item.cashflow          = atoi(buff) ; break; //cashflow
                                                                   
 			default:                                       break;
 		}
