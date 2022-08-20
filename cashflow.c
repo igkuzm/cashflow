@@ -172,11 +172,10 @@ void cashflow_new(
 }
 
 char *cashflow_get_sql_request(
+		char SQL[4096],
 		const char * uuid,
 		const char * predicate)
 {
-	char * SQL = malloc(2048);
-	if (SQL == NULL) return "no memory";
 	sprintf(SQL, 
 		                 "SELECT "
 	/*uuid*/        	 "uuid"
@@ -225,8 +224,6 @@ char *cashflow_get_sql_request(
 			
 						 ,predicate
 	);
-
-	return SQL;
 }
 
 struct cashflow_for_each_data {
@@ -331,17 +328,11 @@ cashflow_get(
 		return;		
 	}
 
-	char * SQL;
+	char SQL[4096];
 	if (predicate)
-		SQL = cashflow_get_sql_request(uuid, predicate);
+		cashflow_get_sql_request(SQL, uuid, predicate);
 	else 
-		SQL = cashflow_get_sql_request(uuid, "");
-
-	if (!SQL){
-		if (callback)
-			callback(user_data, NULL, "cashflow: can't allocate memory for SQL request\n");
-		return;		
-	}
+		cashflow_get_sql_request(SQL, uuid, "");
 
 	printf("SQL: %s\n", SQL);	
 	
@@ -353,10 +344,8 @@ cashflow_get(
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_for_each_callback)){
 		if (callback)
 			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
-		free(SQL);
 		return;
 	}
-	free(SQL);
 }
 
 int
