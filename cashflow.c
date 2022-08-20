@@ -197,10 +197,14 @@ char *cashflow_get_sql_request(
     /*children_expenses*/", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = '%s')"
     /*bank_credit*/      ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = '%s')"
     /*child_count*/      ", (SELECT 0 + COUNT(uuid)   FROM cashflow_passives WHERE type = %d AND cashflow_uuid = '%s')"
+
 	/*passive_income*/   ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE cashflow_uuid = '%s')"
-    /*total_income*/     ", salary + (SELECT 0 + SUM(income) FROM cashflow_actives AND cashflow_uuid = '%s')"
+
+    /*total_income*/     ", salary + (SELECT 0 + SUM(income) FROM cashflow_actives WHERE cashflow_uuid = '%s')"
+
     /*total_expenses*/   ", taxes + other_expenses + (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE cashflow_uuid = '%s')"
-    /*cashflow*/         ", (salary + (SELECT 0 + SUM(income) FROM cashflow_actives AND cashflow_uuid = '%s')) - (taxes + other_expenses + (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE cashflow_uuid = '%s'))"
+
+    /*cashflow*/         ", (salary + (SELECT 0 + SUM(income) FROM cashflow_actives WHERE cashflow_uuid = '%s')) - (taxes + other_expenses + (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE cashflow_uuid = '%s'))"
 
 						 " FROM cashflow %s;"
 						 ,CA_STOCS, uuid
