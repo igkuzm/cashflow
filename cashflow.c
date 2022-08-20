@@ -334,8 +334,6 @@ cashflow_get(
 	else 
 		cashflow_get_sql_request(SQL, uuid, "");
 
-	printf("SQL: %s\n", SQL);	
-	
 	struct cashflow_for_each_data t = {
 		.user_data = user_data,
 		.callback = callback
