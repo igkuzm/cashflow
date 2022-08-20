@@ -194,11 +194,10 @@ void cashflow_new(
 }
 
 char *cashflow_for_each_sql_request(
-		const char * filepath,
 		const char * predicate)
 {
 	char * SQL = malloc(2048);
-	if (SQL == NULL) return NULL;
+	if (SQL == NULL) return "no memory";
 	sprintf(SQL, 
 		                 "SELECT "
 	/*uuid*/        	 "uuid as cashflowuuid"
@@ -287,18 +286,6 @@ int cashflow_for_each_callback(void *user_data, int argc, char *argv[], char *ti
 		}
 	}
 
-	item.passive_income = 
-		item.dividents + item.rent + item.business;
-
-	item.total_income = item.salary + item.passive_income;
-
-	item.total_expenses =
-		item.taxes + item.mortgage + item.education_credit + item.car_credit +
-		item.creditcard + item.some_credits + item.other_expenses + item.children_expenses +
-		item.bank_credit;
-
-	item.cashflow = item.total_income = item.total_expenses;
-
 	if (t->callback)
 		return t->callback(t->user_data, &item, NULL);
 
@@ -322,13 +309,7 @@ cashflow_for_each(
 		.callback = callback
 	};
 
-	char SQL[BUFSIZ];
-	if (predicate) {
-		sprintf(SQL, "SELECT * FROM cashflow WHERE %s", predicate);	
-	} else {
-	   	sprintf(SQL, "SELECT * FROM cashflow");
-	}
-	
+	char SQL = cashflow_for_each_sql_request(predicate);
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_for_each_callback)){
 		if (callback)
 			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
