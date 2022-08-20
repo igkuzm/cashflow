@@ -214,23 +214,24 @@ int cashflow_for_each_callback(void *user_data, int argc, char *argv[], char *ti
 		}
 
 		switch (i) {
-			case 0:  strcpy(item.uuid, buff)             ; break;
-			case 1:  item.date = atoi(buff)              ; break;
-			case 2:  strcpy(item.profession, buff)       ; break;
-			case 3:  item.salary = atoi(buff)            ; break;
-			case 4:  item.dividents = atoi(buff)		 ; break;
-			case 5:  item.rent = atoi(buff)				 ; break;
-			case 6:  item.business = atoi(buff)			 ; break;
-			case 7:  item.taxes = atoi(buff)			 ; break;
-			case 8:  item.mortgage = atoi(buff)			 ; break;
-			case 9:  item.education_credit = atoi(buff)  ; break;
-			case 10: item.car_credit = atoi(buff)		 ; break;
-			case 11: item.some_credits = atoi(buff)		 ; break;
-			case 12: item.other_expenses = atoi(buff)	 ; break;
-			case 13: item.child_cost = atoi(buff)		 ; break;
-			case 14: item.children_expenses = atoi(buff) ; break;
-			case 15: item.bank_credit = atoi(buff)		 ; break;
-
+			case 0:  strcpy(item.uuid, buff)             ; break; //uuid TEXT
+			case 1:  item.date = atoi(buff)              ; break; //date
+			case 2:  strcpy(item.profession, buff)       ; break; //profession 
+			case 3:  item.salary = atoi(buff)            ; break; //salary
+			case 4:  item.dividents = atoi(buff)		 ; break; //dividents
+			case 5:  item.rent = atoi(buff)				 ; break; //rent
+			case 6:  item.business = atoi(buff)			 ; break; //business
+			case 7:  item.taxes = atoi(buff)			 ; break; //taxes
+			case 8:  item.mortgage = atoi(buff)			 ; break; //mortgage
+			case 9:  item.education_credit = atoi(buff)  ; break; //education_credit 
+			case 10: item.car_credit = atoi(buff)		 ; break; //car_credit
+			case 11: item.creditcard = atoi(buff)		 ; break; //creditcard       
+			case 12: item.some_credits = atoi(buff)		 ; break; //some_credits     
+			case 13: item.other_expenses = atoi(buff)	 ; break; //other_expenses   
+			case 14: item.child_cost = atoi(buff)		 ; break; //child_cost       
+			case 15: item.children_expenses = atoi(buff) ; break; //children_expenses
+			case 16: item.bank_credit = atoi(buff)		 ; break; //bank_credit      
+                                                                  
 			default:                                       break;
 		}
 	}
