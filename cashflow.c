@@ -199,8 +199,7 @@ void cashflow_get_sql_request(
 
 	/*passive_income*/   ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE cashflow_uuid = '%s')"
 
-    //[>total_income<]     ", salary + (SELECT 0 + SUM(income) FROM cashflow_actives WHERE cashflow_uuid = '%s')"
-    /*total_income*/     ", salary"
+	/*total_income*/    ", (salary + (SELECT 0 + SUM(income) FROM cashflow_actives WHERE cashflow_uuid = '%s'))"
 
     /*total_expenses*/   ", taxes + other_expenses + (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE cashflow_uuid = '%s')"
 
@@ -220,7 +219,7 @@ void cashflow_get_sql_request(
 						 ,CP_CHILD, uuid	
 						 ,uuid
 						 ,uuid
-						 //,uuid
+						 ,uuid
 						 ,uuid, uuid
 			
 						 ,predicate
