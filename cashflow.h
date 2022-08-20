@@ -149,7 +149,6 @@ extern "C"{
 			void * user_data,
 			int (*callback)(
 				void * user_data,
-				cashflow_t * cashflow,
 				cashflow_active_t * cashflow_active,
 				char * error
 				)
@@ -167,15 +166,9 @@ extern "C"{
 				)
 			);	
 
-	void cashflow_remove_active(
+	int cashflow_remove_active(
 			const char * filepath,
-			const char * uuid,
-			void * user_data,
-			int (*callback)(
-				void * user_data,
-				cashflow_t * cashflow,
-				char * error
-				)
+			const char * uuid
 			);	
 
 	//add new cashflow passive
@@ -189,7 +182,6 @@ extern "C"{
 			void * user_data,
 			int (*callback)(
 				void * user_data,
-				cashflow_t * cashflow,
 				cashflow_passive_t * cashflow_passive,
 				char * error
 				)
@@ -201,7 +193,6 @@ extern "C"{
 			void * user_data,
 			int (*callback)(
 				void * user_data,
-				cashflow_t * cashflow,
 				cashflow_passive_t * cashflow_passive,
 				char * error
 				)
@@ -217,6 +208,11 @@ extern "C"{
 				cashflow_passive_t * cashflow_passive,
 				char * error
 				)
+			);	
+
+	int cashflow_remove_passive(
+			const char * filepath,
+			const char * uuid
 			);	
 		
 
