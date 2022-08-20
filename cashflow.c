@@ -183,6 +183,9 @@ void cashflow_new(
 			cashflow.other_expenses,
 			cashflow.child_cost);
 
+	//log
+	callback(user_data, NULL, STR("SQL: %s\n", SQL));
+
 	if (sqlite_connect_execute(SQL, filepath)){
 		if (callback)
 			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
