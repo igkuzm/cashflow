@@ -214,6 +214,10 @@ char *cashflow_get_sql_request(
 						 ,CP_CHILD, uuid	
 						 ,CP_BANK_CREDIT, uuid	
 						 ,CP_CHILD, uuid	
+						 ,uuid
+						 ,uuid
+						 ,uuid
+						 ,uuid, uuid
 			
 						 ,predicate
 	);
