@@ -200,9 +200,9 @@ char *cashflow_get_sql_request(
 	/*passive_income*/   ", (dividents + rent + business) as passive_income"
     /*total_income*/     ", (salary + passive_income) as total_income"
     /*total_expenses*/   ", (taxes + mortgage + education_credit + car_credit + creditcard + some_credits + other_expenses + children_expenses + bank_credit) as total_expenses"
-    /*cashflow*/         ", (total_income - total_expenses) as cashflow"
+    /*cashflow*/         ", (total_income - total_expenses) as cashflow "
 
-						 "FROM cashflow %s"
+						 "FROM cashflow %s;"
 						 ,CA_STOCS, uuid
 						 ,CA_PROPERTY, uuid	
 						 ,CA_BUSINESS, uuid	
