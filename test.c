@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
 	printf("PLAYER: uuid:%s, prof: %s, sal: %d\n", player.uuid, player.profession, player.salary);
 
-	cashflow_for_each(filepath, NULL, NULL, NULL);
+	cashflow_get(filepath, player.uuid, NULL, NULL, NULL);
 
 	getchar();
 	return 0;
