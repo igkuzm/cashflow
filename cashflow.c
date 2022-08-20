@@ -203,7 +203,7 @@ void cashflow_get_sql_request(
 
     /*total_expenses*/   ", taxes + other_expenses + (SELECT IFNULL(SUM(expenses),0) FROM cashflow_passives WHERE cashflow_uuid = '%s')"
 
-    /*cashflow*/         ", (salary + (SELECT 0 + SUM(income) FROM cashflow_actives WHERE cashflow_uuid = '%s')) - (taxes + other_expenses + (SELECT IFNULL(SUM(expenses),0) FROM cashflow_passives WHERE cashflow_uuid = '%s'))"
+    /*cashflow*/         ", (salary + (SELECT IFNULL(SUM(income),0) FROM cashflow_actives WHERE cashflow_uuid = '%s')) - (taxes + other_expenses + (SELECT IFNULL(SUM(expenses),0) FROM cashflow_passives WHERE cashflow_uuid = '%s'))"
 
 						 " FROM cashflow %s;"
 						 ,CA_STOCS, uuid
