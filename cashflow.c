@@ -141,7 +141,7 @@ void cashflow_new(
 	cashflow.date = time(NULL);
 	strcpy(cashflow.uuid, uuid);
 
-	char SQL[2*BUFSIZ];
+	char SQL[2 * BUFSIZ];
 	sprintf(SQL, 
 			"INSERT INTO cashflow "
 			"("
