@@ -2,7 +2,7 @@
  * File              : cashflow.c
  * Author            : Igor V. Sementsov <ig.kuzm@gmail.com>
  * Date              : 13.06.2022
- * Last Modified Date: 20.08.2022
+ * Last Modified Date: 21.08.2022
  * Last Modified By  : Igor V. Sementsov <ig.kuzm@gmail.com>
  */
 
@@ -902,6 +902,12 @@ int cashflow_add_child_callback(void * user_data, cashflow_t * cashflow, char * 
 	return 1; //stop execution
 }
 
+int get_cashflow_callbask(void * user_data, cashflow_t * _cashflow, char * error){
+	cashflow_t * cashflow = user_data;
+	*cashflow = *_cashflow;
+	return 1; //stop execution
+}
+
 void 
 cashflow_add_child(
 		const char * filepath,
@@ -915,6 +921,10 @@ cashflow_add_child(
 			)
 		)
 {
+	//get cashflow - to find child cost
+	cashflow_t cashflow;
+	cashflow_for_each(filepath, STR("uuid == '%s'", cashflow_uuid), &cashflow, cashflow_add_child_callback);
+
 	struct cashflow_add_child_data t = {
 		.filepath = (char *)filepath,
 		.user_data = user_data,
