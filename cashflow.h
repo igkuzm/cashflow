@@ -2,7 +2,7 @@
  * File              : cashflow.h
  * Author            : Igor V. Sementsov <ig.kuzm@gmail.com>
  * Date              : 13.06.2022
- * Last Modified Date: 14.06.2022
+ * Last Modified Date: 21.08.2022
  * Last Modified By  : Igor V. Sementsov <ig.kuzm@gmail.com>
  */
 
@@ -40,6 +40,7 @@ extern "C"{
 		int total_income;
 		int total_expenses;
 		int cashflow;
+		int child_count;
 	}cashflow_t;
 
 	/*! \enum cashflow_actives
