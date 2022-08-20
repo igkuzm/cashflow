@@ -171,7 +171,7 @@ void cashflow_new(
 		callback(user_data, &cashflow, NULL);
 }
 
-char *cashflow_get_sql_request(
+void cashflow_get_sql_request(
 		char SQL[4096],
 		const char * uuid,
 		const char * predicate)
@@ -199,7 +199,8 @@ char *cashflow_get_sql_request(
 
 	/*passive_income*/   ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE cashflow_uuid = '%s')"
 
-    /*total_income*/     ", salary + (SELECT 0 + SUM(income) FROM cashflow_actives WHERE cashflow_uuid = '%s')"
+    //[>total_income<]     ", salary + (SELECT 0 + SUM(income) FROM cashflow_actives WHERE cashflow_uuid = '%s')"
+    /*total_income*/     ", salary"
 
     /*total_expenses*/   ", taxes + other_expenses + (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE cashflow_uuid = '%s')"
 
@@ -219,7 +220,7 @@ char *cashflow_get_sql_request(
 						 ,CP_CHILD, uuid	
 						 ,uuid
 						 ,uuid
-						 ,uuid
+						 //,uuid
 						 ,uuid, uuid
 			
 						 ,predicate
