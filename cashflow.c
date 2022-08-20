@@ -171,14 +171,15 @@ void cashflow_new(
 		callback(user_data, &cashflow, NULL);
 }
 
-char *cashflow_for_each_sql_request(
+char *cashflow_get_sql_request(
+		const char * uuid,
 		const char * predicate)
 {
 	char * SQL = malloc(2048);
 	if (SQL == NULL) return "no memory";
 	sprintf(SQL, 
 		                 "SELECT "
-	/*uuid*/        	 "uuid as cashflowuuid"
+	/*uuid*/        	 "uuid"
 	/*date*/             ", date"
 	/*profession*/       ", profession"
 	/*salary*/           ", salary as salary"
@@ -274,7 +275,7 @@ int cashflow_for_each_callback(void *user_data, int argc, char *argv[], char *ti
 void 
 cashflow_for_each(
 		const char * filepath,
-		const char * _predicate,
+		const char * predicate,
 		void * user_data,
 		int (*callback)(
 			void * user_data,
@@ -283,25 +284,71 @@ cashflow_for_each(
 			)
 		)
 {
+
+	char SQL[BUFSIZ];
+	if (predicate) {
+		sprintf(SQL, "SELECT * FROM cashflow %s", predicate);	
+	} else {
+	   	sprintf(SQL, "SELECT * FROM cashflow");
+	}
+
+	struct cashflow_for_each_data t = {
+		.user_data = user_data,
+		.callback = callback
+	};
+	
+	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_for_each_callback)){
+		if (callback)
+			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
+		return;
+	}
+}
+
+void 
+cashflow_get(
+		const char * filepath,
+		const char * uuid,
+		const char * predicate,
+		void * user_data,
+		int (*callback)(
+			void * user_data,
+			cashflow_t * cashflow,
+			char * error
+			)
+		)
+{
+	if (!uuid){
+		if (callback)
+			callback(user_data, NULL, "cashflow: cashflow_get: no uuis in request\n");
+		return;		
+	}
+
+	char * SQL;
+	if (predicate)
+		SQL = cashflow_get_sql_request(uuid, predicate);
+	else 
+		SQL = cashflow_get_sql_request(uuid, "");
+
+	if (!SQL){
+		if (callback)
+			callback(user_data, NULL, "cashflow: can't allocate memory for SQL request\n");
+		return;		
+	}
+
+	printf("SQL: %s\n", SQL);	
+	
 	struct cashflow_for_each_data t = {
 		.user_data = user_data,
 		.callback = callback
 	};
 
-	char predicate[BUFSIZ];
-	sprintf(predicate, " %s", _predicate);
-
-	char * SQL = cashflow_for_each_sql_request(predicate);
-
-	printf("SQL: %s\n", SQL);	
-
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_for_each_callback)){
 		if (callback)
 			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
-		//if (SQL != NULL) free(SQL);
+		free(SQL);
 		return;
 	}
-	//if (SQL != NULL) free(SQL);
+	free(SQL);
 }
 
 int
