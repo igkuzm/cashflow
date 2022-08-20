@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#define STR(str, ...) ({char ___str[BUFSIZ]; sprintf(___str, str, __VA_ARGS__); ___str;})
+#define STR(str, ...) ({char ___str[2048]; sprintf(___str, str, __VA_ARGS__); ___str;})
 
 int cashflow_database_init(const char *filepath){
 	int res = sqlite_connect_create_database(filepath);	
