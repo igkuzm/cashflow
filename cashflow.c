@@ -291,11 +291,16 @@ cashflow_for_each(
 	sprintf(predicate, " %s", _predicate);
 
 	char * SQL = cashflow_for_each_sql_request(predicate);
+	if (callback)
+		callback(user_data, NULL, SQL);
+	
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_for_each_callback)){
 		if (callback)
 			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
+		if (SQL != NULL) free(SQL);
 		return;
 	}
+	if (SQL != NULL) free(SQL);
 }
 
 int
