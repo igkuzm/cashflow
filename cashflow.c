@@ -183,37 +183,37 @@ char *cashflow_get_sql_request(
 	/*date*/             ", date"
 	/*profession*/       ", profession"
 	/*salary*/           ", salary as salary"
-	/*dividents*/        ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE type = %d AND cashflow_uuid = cashflowuuid) as dividents"
-    /*rent*/             ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE type = %d AND cashflow_uuid = cashflowuuid) as rent"
-    /*business*/         ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE type = %d AND cashflow_uuid = cashflowuuid) as business"
+	/*dividents*/        ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE type = %d AND cashflow_uuid = %s) as dividents"
+    /*rent*/             ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE type = %d AND cashflow_uuid = %s) as rent"
+    /*business*/         ", (SELECT 0 + SUM(income) FROM cashflow_actives WHERE type = %d AND cashflow_uuid = %s) as business"
     /*taxes*/            ", taxes as taxes"
-    /*mortgage*/         ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as mortgage"
-    /*education_credit*/ ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as education_credit"
-    /*car_credit*/       ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as car_credit"
-    /*creditcard*/       ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as creditcard" 
-    /*some_credits*/     ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as some_credits"
+    /*mortgage*/         ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = %s) as mortgage"
+    /*education_credit*/ ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = %s) as education_credit"
+    /*car_credit*/       ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = %s) as car_credit"
+    /*creditcard*/       ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = %s) as creditcard" 
+    /*some_credits*/     ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = %s) as some_credits"
     /*other_expenses*/   ", other_expenses as other_expenses"
     /*child_cost*/       ", child_cost" 
-    /*children_expenses*/", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as children_expenses"
-    /*bank_credit*/      ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid) as bank_credit"
-    /*child_count*/      ", (SELECT 0 + COUNT(uuid)   FROM cashflow_passives WHERE type = %d AND cashflow_uuid = cashflowuuid)"
+    /*children_expenses*/", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = %s) as children_expenses"
+    /*bank_credit*/      ", (SELECT 0 + SUM(expenses) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = %s) as bank_credit"
+    /*child_count*/      ", (SELECT 0 + COUNT(uuid)   FROM cashflow_passives WHERE type = %d AND cashflow_uuid = %s)"
 	/*passive_income*/   ", (dividents + rent + business) as passive_income"
     /*total_income*/     ", (salary + passive_income) as total_income"
     /*total_expenses*/   ", (taxes + mortgage + education_credit + car_credit + creditcard + some_credits + other_expenses + children_expenses + bank_credit) as total_expenses"
     /*cashflow*/         ", (total_income - total_expenses) as cashflow"
 
 						 "FROM cashflow %s"
-						 ,CA_STOCS
-						 ,CA_PROPERTY	
-						 ,CA_BUSINESS	
-						 ,CP_MORTGAGE	
-						 ,CP_EDUCATION_CREDIT	
-						 ,CP_CAR_CREDIT	
-						 ,CP_CREDIT_CARD	
-						 ,CP_SOME_CREDIT	
-						 ,CP_CHILD	
-						 ,CP_BANK_CREDIT	
-						 ,CP_CHILD	
+						 ,CA_STOCS, uuid
+						 ,CA_PROPERTY, uuid	
+						 ,CA_BUSINESS, uuid	
+						 ,CP_MORTGAGE, uuid	
+						 ,CP_EDUCATION_CREDIT, uuid	
+						 ,CP_CAR_CREDIT, uuid	
+						 ,CP_CREDIT_CARD, uuid	
+						 ,CP_SOME_CREDIT, uuid	
+						 ,CP_CHILD, uuid	
+						 ,CP_BANK_CREDIT, uuid	
+						 ,CP_CHILD, uuid	
 			
 						 ,predicate
 	);
