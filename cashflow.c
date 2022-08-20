@@ -141,7 +141,7 @@ void cashflow_new(
 			"salary, "
 			"taxes, "
 			"other_expenses, "
-			"child_cost "
+			"child_cost"
 			")"
 			"VALUES "
 			"("
@@ -151,7 +151,8 @@ void cashflow_new(
 			"%d, "
 			"%d, "
 			"%d, "
-			"%d ", 
+			"%d "
+			")", 
 			cashflow.uuid,
 			cashflow.date,
 			cashflow.profession,
