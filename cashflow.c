@@ -291,6 +291,8 @@ cashflow_for_each(
 	sprintf(predicate, " %s", _predicate);
 
 	char * SQL = cashflow_for_each_sql_request(predicate);
+
+	//log
 	if (callback)
 		callback(user_data, NULL, SQL);
 	
