@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#define STR(str, ...) ({char ___str[2048]; sprintf(___str, str, __VA_ARGS__); ___str;})
+#define STR(str, ...) ({char ___str[4096]; sprintf(___str, str, __VA_ARGS__); ___str;})
 
 int cashflow_database_init(const char *filepath){
 	int res = sqlite_connect_create_database(filepath);	
@@ -131,7 +131,7 @@ void cashflow_new(
 	cashflow.date = time(NULL);
 	strcpy(cashflow.uuid, uuid);
 
-	char SQL[2 * BUFSIZ];
+	char SQL[BUFSIZ];
 	sprintf(SQL, 
 			"INSERT INTO cashflow "
 			"("
@@ -368,7 +368,7 @@ cashflow_set_values_for_keys(
 		...
 		)
 {
-	char SQL[BUFSIZ*BUFSIZ];
+	char SQL[BUFSIZ];
 	sprintf(SQL, "UPDATE cashflow SET ");
 
 	va_list args;
