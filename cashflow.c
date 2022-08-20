@@ -29,19 +29,9 @@ int cashflow_database_init(const char *filepath){
 		"date INT, "
 		"profession TEXT, "
 		"salary INT, "
-		"dividents INT, "
-		"rent INT, "
-		"business INT, "
 		"taxes INT, "
-		"mortgage INT, "
-		"education_credit INT, "
-		"car_credit INT, "
-		"creditcard INT, "
-		"some_credits INT, "
 		"other_expenses INT, "
-		"child_cost INT, "
-		"children_expenses INT, "
-		"bank_credit INT "
+		"child_cost INT "
 		")"
 		;
 	
@@ -149,19 +139,9 @@ void cashflow_new(
 			"date, "
 			"profession, "
 			"salary, "
-			"dividents, "
-			"rent, "
-			"business, "
 			"taxes, "
-			"mortgage, "
-			"education_credit, "
-			"car_credit, "
-			"creditcard, "
-			"some_credits, "
 			"other_expenses, "
-			"child_cost, "
-			"children_expenses, "
-			"bank_credit "
+			"child_cost "
 			")"
 			"VALUES "
 			"("
@@ -169,12 +149,9 @@ void cashflow_new(
 			"%ld, "
 			"'%s', "
 			"%d, "
-			"0, 0, 0, "
-			"%d, "
-			"0, 0, 0, 0, 0, "
 			"%d, "
 			"%d, "
-			" 0, 0)", 
+			"%d ", 
 			cashflow.uuid,
 			cashflow.date,
 			cashflow.profession,
@@ -295,7 +272,7 @@ int cashflow_for_each_callback(void *user_data, int argc, char *argv[], char *ti
 void 
 cashflow_for_each(
 		const char * filepath,
-		const char * predicate,
+		const char * _predicate,
 		void * user_data,
 		int (*callback)(
 			void * user_data,
@@ -309,7 +286,10 @@ cashflow_for_each(
 		.callback = callback
 	};
 
-	char SQL = cashflow_for_each_sql_request(predicate);
+	char predicate[BUFSIZ];
+	sprintf(predicate, " %s", _predicate);
+
+	char * SQL = cashflow_for_each_sql_request(predicate);
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_for_each_callback)){
 		if (callback)
 			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
@@ -426,7 +406,7 @@ cashflow_active_for_each(
 
 	char SQL[BUFSIZ];
 	if (predicate) {
-		sprintf(SQL, "SELECT * FROM cashflow_actives WHERE %s", predicate);	
+		sprintf(SQL, "SELECT * FROM cashflow_actives %s", predicate);	
 	} else {
 	   	sprintf(SQL, "SELECT * FROM cashflow_actives");
 	}
@@ -436,64 +416,6 @@ cashflow_active_for_each(
 			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
 		return;
 	}	
-}
-
-struct cashflow_add_active_data {
-	void * user_data;
-	char * filepath;
-	cashflow_active_t * cashflow_active;
-	int (*callback)(void * user_data, cashflow_t * cashflow, cashflow_active_t * cashflow_active, char * error);
-};
-
-int cashflow_add_active_callback(void * user_data, cashflow_t * cashflow, char * error){
-	struct cashflow_add_active_data *t = user_data;
-	cashflow_active_t * cashflow_active = t->cashflow_active;
-
-	cashflow->passive_income += cashflow_active->income;
-	cashflow->total_income += cashflow_active->income;
-	cashflow->cashflow += cashflow_active->income;
-
-	char * key;
-	int value;
-	
-	switch (cashflow_active->type) {
-		case CA_STOCS: 
-			{
-				cashflow->dividents += cashflow_active->income;
-				key = "dividents";
-				value = cashflow->dividents;
-				break;
-			}
-		case CA_PROPERTY: 
-			{
-				cashflow->rent += cashflow_active->income;
-				key = "rent";
-				value = cashflow->rent;
-				break;
-			}
-		case CA_BUSINESS:
-			{
-				cashflow->business += cashflow_active->income;
-				key = "business";
-				value = cashflow->business;
-				break;
-			}
-		default: break;
-	}
-	
-	char SQL[BUFSIZ];
-	sprintf(SQL, "UPDATE cashflow SET %s = %d WHERE uuid = '%s'", key, value, cashflow->uuid);
-	int res = sqlite_connect_execute(SQL, t->filepath);
-	if (res){
-		if (t->callback)
-			t->callback(user_data, NULL, NULL, STR("cashflow: Can't execute SQL: %s. Error code: %d\n", SQL, res));
-		return 1;
-	}
-	
-	if (t->callback)
-		t->callback(user_data, cashflow, cashflow_active, NULL);
-	
-	return 1; //stop execute
 }
 
 void 
@@ -508,7 +430,6 @@ cashflow_add_active(
 		void * user_data,
 		int (*callback)(
 			void * user_data,
-			cashflow_t * cashflow,
 			cashflow_active_t * cashflow_active,
 			char * error
 			)
@@ -521,7 +442,7 @@ cashflow_add_active(
 	uuid4_gen(&state, &identifier);
 	if (!uuid4_to_s(identifier, uuid, 37)){
 		if (callback)
-			callback(user_data, NULL, NULL, "cashflow: Can't genarate UUID\n");
+			callback(user_data, NULL, "cashflow: Can't genarate UUID\n");
 		return;
 	}
 	
@@ -572,114 +493,23 @@ cashflow_add_active(
 
 	if (sqlite_connect_execute(SQL, filepath)){
 		if (callback)
-			callback(user_data, NULL, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
+			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
 		return;
 	}
 
-	struct cashflow_add_active_data t = {
-		.user_data = user_data,
-		.callback = callback,
-		.filepath = (char *)filepath,
-		.cashflow_active = &cashflow_active
-	};
-
-	cashflow_for_each(filepath, STR("uuid == '%s'", cashflow_uuid), &t, cashflow_add_active_callback);
+	if (callback)
+		callback(user_data, &cashflow_active, NULL);
 }
 
-struct cashflow_remove_active_data {
-	void * user_data;
-	char * filepath;
-	cashflow_active_t * cashflow_active;
-	int (*callback)(void * user_data, cashflow_t * cashflow, char * error);
-};
-
-int cashflow_remove_active_callback(void * user_data, cashflow_t * cashflow, char * error){
-	struct cashflow_remove_active_data *t = user_data;
-	cashflow_active_t * cashflow_active = t->cashflow_active;
-
-	cashflow->passive_income -= cashflow_active->income;
-	cashflow->total_income -= cashflow_active->income;
-	cashflow->cashflow -= cashflow_active->income;
-
-	char * key;
-	int value;
-	
-	switch (cashflow_active->type) {
-		case CA_STOCS: 
-			{
-				cashflow->dividents -= cashflow_active->income;
-				key = "dividents";
-				value = cashflow->dividents;
-				break;
-			}
-		case CA_PROPERTY: 
-			{
-				cashflow->rent -= cashflow_active->income;
-				key = "rent";
-				value = cashflow->rent;
-				break;
-			}
-		case CA_BUSINESS:
-			{
-				cashflow->business -= cashflow_active->income;
-				key = "business";
-				value = cashflow->business;
-				break;
-			}
-		default: break;
-	}
-	
-	char SQL[BUFSIZ];
-	sprintf(SQL, "UPDATE cashflow SET %s = %d WHERE uuid = '%s'", key, value, cashflow->uuid);
-	int res;
-	res = sqlite_connect_execute(SQL, t->filepath);
-	if (res){
-		if (t->callback)
-			t->callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s. Error code: %d\n", SQL, res));
-		return 1;
-	}
-
-	sprintf(SQL, "DELETE FROM cashflow_actives WHERE uuid = '%s'", cashflow_active->uuid);	
-	res = sqlite_connect_execute(SQL, t->filepath); 
-	if (res){
-		if (t->callback)
-			t->callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s. Error code: %d\n", SQL, res));
-		return 1;
-	}
-	
-	if (t->callback)
-		t->callback(user_data, cashflow, NULL);
-	
-	return 1; //stop execute
-}
-
-int cashflow_remove_active_callback_get_active(void * user_data, cashflow_active_t * cashflow_active, char * error){
-	struct cashflow_remove_active_data *t = user_data;
-	t->cashflow_active = cashflow_active; 
-	
-	cashflow_for_each(t->filepath, STR("uuid == '%s'", cashflow_active->cashflow_uuid), t, cashflow_remove_active_callback);
-	return 1; //stop execute
-}
-
-void
+int
 cashflow_remove_active(
 		const char * filepath,
-		const char * uuid,
-		void * user_data,
-		int (*callback)(
-			void * user_data,
-			cashflow_t * cashflow,
-			char * error
-			)		
-		)
+		const char * uuid)
 {
-	struct cashflow_remove_active_data t = {
-		.user_data = user_data,
-		.callback = callback,
-		.filepath = (char *)filepath,
-	};
-	
-	cashflow_active_for_each(filepath, STR("uuid == '%s'", uuid), &t, cashflow_remove_active_callback_get_active);
+	char SQL[BUFSIZ];
+	sprintf(SQL, "DELETE FROM cashflow_actives WHERE uuid = '%s'", uuid);
+
+	return sqlite_connect_execute(SQL, filepath);	
 }
 #pragma endregion <CASHFLOW ACTIVE>
 #pragma region <CASHFLOW PASSIVE>
@@ -737,7 +567,7 @@ cashflow_passive_for_each(
 
 	char SQL[BUFSIZ];
 	if (predicate) {
-		sprintf(SQL, "SELECT * FROM cashflow_passives WHERE %s", predicate);	
+		sprintf(SQL, "SELECT * FROM cashflow_passives %s", predicate);	
 	} else {
 	   	sprintf(SQL, "SELECT * FROM cashflow_passives");
 	}
@@ -747,97 +577,6 @@ cashflow_passive_for_each(
 			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
 		return;
 	}	
-}
-
-struct cashflow_add_passive_data {
-	void * user_data;
-	char * filepath;
-	cashflow_passive_t * cashflow_passive;
-	int (*callback)(void * user_data, cashflow_t * cashflow, cashflow_passive_t * cashflow_passive, char * error);
-};
-
-int cashflow_add_passive_callback(void * user_data, cashflow_t * cashflow, char * error){
-	struct cashflow_add_passive_data *t = user_data;
-	cashflow_passive_t * cashflow_passive = t->cashflow_passive;
-
-	cashflow->total_expenses += cashflow_passive->expenses;
-	cashflow->cashflow -= cashflow_passive->expenses;
-
-	char * key;
-	int value;
-	
-	switch (cashflow_passive->type) {
-		case CP_CHILD: 
-			{
-				cashflow->children_expenses += cashflow_passive->expenses;
-				key = "children_expenses";
-				value = cashflow->children_expenses;
-				break;
-			}
-		case CP_MORTGAGE: 
-			{
-				cashflow->mortgage += cashflow_passive->expenses;
-				key = "mortgage";
-				value = cashflow->mortgage;
-				break;
-			}
-		case CP_EDUCATION_CREDIT:
-			{
-				cashflow->education_credit += cashflow_passive->expenses;
-				key = "education_credit";
-				value = cashflow->education_credit;
-				break;
-			}
-		case CP_CAR_CREDIT:
-			{
-				cashflow->car_credit += cashflow_passive->expenses;
-				key = "car_credit";
-				value = cashflow->car_credit;
-				break;
-			}			
-		case CP_CREDIT_CARD:
-			{
-				cashflow->creditcard += cashflow_passive->expenses;
-				key = "creditcard";
-				value = cashflow->creditcard;
-				break;
-			}
-		case CP_SOME_CREDIT:
-			{
-				cashflow->some_credits += cashflow_passive->expenses;
-				key = "some_credits";
-				value = cashflow->some_credits;
-				break;
-			}	
-		case CP_BANK_CREDIT:
-			{
-				cashflow->bank_credit += cashflow_passive->expenses;
-				key = "bank_credit";
-				value = cashflow->bank_credit;
-				break;
-			}	
-		case CP_BUSINESS:
-			{
-				cashflow->business -= cashflow_passive->expenses;
-				key = "business";
-				value = cashflow->business;
-				break;
-			}			
-		default: break;
-	}
-	
-	char SQL[BUFSIZ];
-	sprintf(SQL, "UPDATE cashflow SET %s = %d WHERE uuid = '%s'", key, value, cashflow->uuid);
-	if (sqlite_connect_execute(SQL, t->filepath)){
-		if (t->callback)
-			t->callback(user_data, NULL, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
-		return 1;
-	}
-	
-	if (t->callback)
-		t->callback(user_data, cashflow, cashflow_passive, NULL);
-	
-	return 1; //stop execute
 }
 
 void 
@@ -851,7 +590,6 @@ cashflow_add_passive(
 		void * user_data,
 		int (*callback)(
 			void * user_data,
-			cashflow_t * cashflow,
 			cashflow_passive_t * cashflow_passive,
 			char * error
 			)
@@ -864,7 +602,7 @@ cashflow_add_passive(
 	uuid4_gen(&state, &identifier);
 	if (!uuid4_to_s(identifier, uuid, 37)){
 		if (callback)
-			callback(user_data, NULL, NULL, "cashflow: Can't genarate UUID\n");
+			callback(user_data, NULL, "cashflow: Can't genarate UUID\n");
 		return;
 	}
 	
@@ -911,24 +649,19 @@ cashflow_add_passive(
 
 	if (sqlite_connect_execute(SQL, filepath)){
 		if (callback)
-			callback(user_data, NULL, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
+			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
 		return;
 	}
 
-	//struct cashflow_add_passive_data t = {
-		//.user_data = user_data,
-		//.callback = callback,
-		//.filepath = (char *)filepath,
-		//.cashflow_passive = &cashflow_passive
-	//};
+	if (callback)
+		callback(user_data, &cashflow_passive, NULL);
 
-	//cashflow_for_each(filepath, STR("uuid == '%s'", cashflow_uuid), &t, cashflow_add_passive_callback);
 }
 
 struct cashflow_add_child_data {
 	char * filepath;
 	void * user_data;
-	int (*callback)(void * user_data, cashflow_t * cashflow, cashflow_passive_t * cashflow_passive, char * error);
+	int (*callback)(void * user_data, cashflow_passive_t * cashflow_passive, char * error);
 };
 
 int get_cashflow_callback(void * user_data, cashflow_t * _cashflow, char * error){
@@ -944,7 +677,6 @@ cashflow_add_child(
 		void * user_data,
 		int (*callback)(
 			void * user_data,
-			cashflow_t * cashflow,
 			cashflow_passive_t * cashflow_passive,
 			char * error
 			)
@@ -956,7 +688,7 @@ cashflow_add_child(
 
 	if (strlen(cashflow.uuid) < 1){
 		if (callback)
-			callback(user_data, NULL, NULL, STR("cashflow: can't get cashflow for uuid: %s", cashflow_uuid));
+			callback(user_data, NULL, STR("cashflow: can't get cashflow for uuid: %s", cashflow_uuid));
 		return;
 	}
 
@@ -969,134 +701,14 @@ cashflow_add_child(
 	cashflow_add_passive(t.filepath, cashflow_uuid, CP_CHILD, "child", 0, cashflow.child_cost, t.user_data, t.callback);
 }	
 
-
-struct cashflow_remove_passive_data {
-	void * user_data;
-	char * filepath;
-	cashflow_passive_t * cashflow_passive;
-	int (*callback)(void * user_data, cashflow_t * cashflow, char * error);
-};
-
-int cashflow_remove_passive_callback(void * user_data, cashflow_t * cashflow, char * error){
-	struct cashflow_remove_passive_data *t = user_data;
-	cashflow_passive_t * cashflow_passive = t->cashflow_passive;
-
-	cashflow->total_expenses -= cashflow_passive->expenses;
-	cashflow->cashflow += cashflow_passive->expenses;
-
-	char * key;
-	int value;
-	
-	switch (cashflow_passive->type) {
-		case CP_CHILD: 
-			{
-				cashflow->children_expenses -= cashflow_passive->expenses;
-				key = "children_expenses";
-				value = cashflow->children_expenses;
-				break;
-			}
-		case CP_MORTGAGE: 
-			{
-				cashflow->mortgage -= cashflow_passive->expenses;
-				key = "mortgage";
-				value = cashflow->mortgage;
-				break;
-			}
-		case CP_EDUCATION_CREDIT:
-			{
-				cashflow->education_credit -= cashflow_passive->expenses;
-				key = "education_credit";
-				value = cashflow->education_credit;
-				break;
-			}
-		case CP_CAR_CREDIT:
-			{
-				cashflow->car_credit -= cashflow_passive->expenses;
-				key = "car_credit";
-				value = cashflow->car_credit;
-				break;
-			}			
-		case CP_CREDIT_CARD:
-			{
-				cashflow->creditcard -= cashflow_passive->expenses;
-				key = "creditcard";
-				value = cashflow->creditcard;
-				break;
-			}
-		case CP_SOME_CREDIT:
-			{
-				cashflow->some_credits -= cashflow_passive->expenses;
-				key = "some_credits";
-				value = cashflow->some_credits;
-				break;
-			}	
-		case CP_BANK_CREDIT:
-			{
-				cashflow->bank_credit -= cashflow_passive->expenses;
-				key = "bank_credit";
-				value = cashflow->bank_credit;
-				break;
-			}	
-		case CP_BUSINESS:
-			{
-				cashflow->business += cashflow_passive->expenses;
-				key = "business";
-				value = cashflow->business;
-				break;
-			}			
-		default: break;
-	}
-	
-	char SQL[BUFSIZ];
-	sprintf(SQL, "UPDATE cashflow SET %s = %d WHERE uuid = '%s'", key, value, cashflow->uuid);
-	if (sqlite_connect_execute(SQL, t->filepath)){
-		if (t->callback)
-			t->callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
-		return 1;
-	}
-
-	sprintf(SQL, "DELETE FROM cashflow_passives WHERE uuid = '%s'", cashflow_passive->uuid);	
-	if (sqlite_connect_execute(SQL, t->filepath)){
-		if (t->callback)
-			t->callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
-		return 1;
-	}
-	
-	if (t->callback)
-		t->callback(user_data, cashflow, NULL);
-	
-	return 1; //stop execute
-}
-
-int cashflow_remove_passive_callback_get_passive(void * user_data, cashflow_passive_t * cashflow_passive, char * error){
-	struct cashflow_remove_passive_data *t = user_data;
-	t->cashflow_passive = cashflow_passive; 
-	
-	cashflow_for_each(t->filepath, STR("uuid == '%s'", cashflow_passive->cashflow_uuid), t, cashflow_remove_passive_callback);
-	return 1; //stop execute
-}
-
-void
+int
 cashflow_remove_passive(
 		const char * filepath,
-		const char * uuid,
-		void * user_data,
-		int (*callback)(
-			void * user_data,
-			cashflow_t * cashflow,
-			char * error
-			)		
-		)
+		const char * uuid)
 {
-	struct cashflow_remove_passive_data t = {
-		.user_data = user_data,
-		.callback = callback,
-		.filepath = (char *)filepath,
-	};
-	
-	cashflow_passive_for_each(filepath, STR("uuid == '%s'", uuid), &t, cashflow_remove_passive_callback_get_passive);
+	char SQL[BUFSIZ];
+	sprintf(SQL, "DELETE FROM cashflow_passives WHERE uuid = '%s'", uuid);
+
+	return sqlite_connect_execute(SQL, filepath);	
 }
 #pragma endregion <CASHFLOW PASSIVE>
-
-
-
