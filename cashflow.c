@@ -260,7 +260,7 @@ int cashflow_for_each_callback(void *user_data, int argc, char *argv[], char *ti
 		}
 
 		switch (i) {
-			case 0:  strcpy(item.uuid, buff)             ; break; //uuid TEXT
+			case 0:  strcpy(item.uuid, buff)             ; break; //uuid
 			case 1:  item.date              = atoi(buff) ; break; //date
 			case 2:  strcpy(item.profession, buff)       ; break; //profession 
 			case 3:  item.salary            = atoi(buff) ; break; //salary
