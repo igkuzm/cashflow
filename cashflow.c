@@ -2,7 +2,7 @@
  * File              : cashflow.c
  * Author            : Igor V. Sementsov <ig.kuzm@gmail.com>
  * Date              : 13.06.2022
- * Last Modified Date: 23.06.2022
+ * Last Modified Date: 20.08.2022
  * Last Modified By  : Igor V. Sementsov <ig.kuzm@gmail.com>
  */
 
@@ -141,7 +141,7 @@ void cashflow_new(
 	cashflow.date = time(NULL);
 	strcpy(cashflow.uuid, uuid);
 
-	char SQL[BUFSIZ];
+	char SQL[2*BUFSIZ];
 	sprintf(SQL, 
 			"INSERT INTO cashflow "
 			"("
