@@ -899,7 +899,7 @@ struct cashflow_add_child_data {
 int get_cashflow_callback(void * user_data, cashflow_t * _cashflow, char * error){
 	cashflow_t * cashflow = user_data;
 	*cashflow = *_cashflow;
-	return 1; //stop execution
+	return 0; //stop execution
 }
 
 void 
