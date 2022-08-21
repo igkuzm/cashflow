@@ -229,7 +229,7 @@ extern "C"{
 			);	
 	
 
-	int cashflow_remove_passive(
+	int cashflow_passive_remove(
 			const char * filepath,
 			const char * uuid
 			);	
