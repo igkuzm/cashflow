@@ -2,7 +2,7 @@
  * File              : cashflow.h
  * Author            : Igor V. Sementsov <ig.kuzm@gmail.com>
  * Date              : 13.06.2022
- * Last Modified Date: 21.08.2022
+ * Last Modified Date: 22.08.2022
  * Last Modified By  : Igor V. Sementsov <ig.kuzm@gmail.com>
  */
 
@@ -219,6 +219,15 @@ extern "C"{
 				char * error
 				)
 			);	
+	
+	//set value for key
+	int cashflow_passive_set_value_for_key(
+			const char * filepath,
+			const char * uuid,
+			const char * value,
+			const char * key
+			);	
+	
 
 	int cashflow_remove_passive(
 			const char * filepath,
