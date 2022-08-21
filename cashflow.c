@@ -694,9 +694,9 @@ cashflow_passive_new(
 			"'%s', "
 			"%ld, "
 			"%d, "
-			"'%s'', "
+			"'%s', "
 			"%d, "
-			"%d "
+			"%d"
 			")",
 			cashflow_passive.uuid,
 			cashflow_passive.cashflow_uuid,
