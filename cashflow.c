@@ -66,7 +66,6 @@ int cashflow_database_init(const char *filepath){
 		"cashflow_uuid TEXT, "
 		"date INT, "
 		"type INT, "
-		"title TEXT, "
 		"cost INT, "
 		"expenses INT "
 		")"
@@ -709,7 +708,6 @@ cashflow_passive_new(
 			"cashflow_uuid, "
 			"date, "
 			"type, "
-			"title, "
 			"cost, "
 			"expenses"
 			") "
@@ -719,7 +717,6 @@ cashflow_passive_new(
 			"'%s', "
 			"%ld, "
 			"%d, "
-			"'%s', "
 			"%d, "
 			"%d"
 			")",
@@ -727,7 +724,6 @@ cashflow_passive_new(
 			cashflow_passive.cashflow_uuid,
 			cashflow_passive.date,
 			cashflow_passive.type,
-			cashflow_passive.title,
 			cashflow_passive.cost,
 			cashflow_passive.expenses
 			);
