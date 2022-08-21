@@ -657,13 +657,13 @@ cashflow_passive_new(
 	//make title
 	const char * title;
 	switch (type) {
-		case CP_CHILD:            title = "ребёнок";
-		case CP_MORTGAGE:         title = "ипотека";
-		case CP_EDUCATION_CREDIT: title = "кредит на образование";
-		case CP_CAR_CREDIT:       title = "автокредит";
-		case CP_CREDIT_CARD:      title = "кредитные карты";
-		case CP_SOME_CREDIT:      title = "прочие кредиты";
-		case CP_BANK_CREDIT:      title = "банковский кредит";
+		case CP_CHILD:            title = "Ребёнок"              ; break;
+		case CP_MORTGAGE:         title = "Ипотека"              ; break;
+		case CP_EDUCATION_CREDIT: title = "Кредит на образование"; break;
+		case CP_CAR_CREDIT:       title = "Автокредит"           ; break;
+		case CP_CREDIT_CARD:      title = "Кредитные карты"      ; break;
+		case CP_SOME_CREDIT:      title = "Прочие кредиты"       ; break;
+		case CP_BANK_CREDIT:      title = "Банковский кредит"    ; break;
 	}
 	
 	cashflow_passive_t cashflow_passive = {
