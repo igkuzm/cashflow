@@ -615,11 +615,36 @@ cashflow_passive_for_each(
 	};
 
 	char SQL[BUFSIZ];
-	if (predicate) {
-		sprintf(SQL, "SELECT * FROM cashflow_passives %s", predicate);	
-	} else {
-	   	sprintf(SQL, "SELECT * FROM cashflow_passives");
-	}
+	sprintf(SQL,	
+				"SELECT"
+				"  uuid"
+				", cashflow_uuid"
+				", date"
+				", type"
+				", ("
+				"CASE type "
+					"WHEN %d THEN 'Ребёнок' "
+					"WHEN %d THEN 'Ипотека' "
+					"WHEN %d THEN 'Кредит на образование' "
+					"WHEN %d THEN 'Автокредит' "
+					"WHEN %d THEN 'Кредитные карты' "
+					"WHEN %d THEN 'Прочие кредиты' "
+					"WHEN %d THEN 'Банковский кредит' "
+				"END) as title"
+				", cost"
+				", expenses"
+				" FROM cashflow_passives "
+				,CP_CHILD
+				,CP_MORTGAGE
+				,CP_EDUCATION_CREDIT
+				,CP_CAR_CREDIT
+				,CP_CREDIT_CARD
+				,CP_SOME_CREDIT
+				,CP_BANK_CREDIT
+		   );
+	
+	if (predicate)
+		strcat(SQL, predicate);	
 	
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_passive_for_each_callback)){
 		if (callback)
