@@ -71,8 +71,7 @@ extern "C"{
 		CP_CAR_CREDIT,
 		CP_CREDIT_CARD,
 		CP_SOME_CREDIT,
-		CP_BANK_CREDIT,
-		CP_BUSINESS	
+		CP_BANK_CREDIT
 	}CP_TYPE;	
 
 	typedef struct cashflow_passive_t {
