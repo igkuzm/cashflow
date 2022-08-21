@@ -468,7 +468,7 @@ cashflow_active_for_each(
 }
 
 void 
-cashflow_add_active(
+cashflow_active_new(
 		const char * filepath,
 		const char * cashflow_uuid,
 		CA_TYPE type,
@@ -629,11 +629,10 @@ cashflow_passive_for_each(
 }
 
 void 
-cashflow_add_passive(
+cashflow_passive_new(
 		const char * filepath,
 		const char * cashflow_uuid,
 		CP_TYPE type,
-		char title[128],
 		int cost,
 		int expenses,
 		void * user_data,
@@ -653,6 +652,18 @@ cashflow_add_passive(
 		if (callback)
 			callback(user_data, NULL, "cashflow: Can't genarate UUID\n");
 		return;
+	}
+
+	//make title
+	const char * title;
+	switch (type) {
+		case CP_CHILD:            title = "ребёнок";
+		case CP_MORTGAGE:         title = "ипотека";
+		case CP_EDUCATION_CREDIT: title = "кредит на образование";
+		case CP_CAR_CREDIT:       title = "автокредит";
+		case CP_CREDIT_CARD:      title = "кредитные карты";
+		case CP_SOME_CREDIT:      title = "прочие кредиты";
+		case CP_BANK_CREDIT:      title = "банковский кредит";
 	}
 	
 	cashflow_passive_t cashflow_passive = {
@@ -747,7 +758,7 @@ cashflow_add_child(
 		.user_data = user_data,
 		.callback = callback
 	};
-	cashflow_add_passive(t.filepath, cashflow_uuid, CP_CHILD, "child", 0, cashflow.child_cost, t.user_data, t.callback);
+	cashflow_passive_new(t.filepath, cashflow_uuid, CP_CHILD, 0, cashflow.child_cost, t.user_data, t.callback);
 }	
 
 int

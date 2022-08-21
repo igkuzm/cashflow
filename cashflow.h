@@ -149,7 +149,7 @@ extern "C"{
 
 	
 	//add new cashflow active
-	void cashflow_add_active(
+	void cashflow_active_new(
 			const char * filepath,
 			const char * cashflow_uuid,
 			CA_TYPE type,
@@ -183,11 +183,10 @@ extern "C"{
 			);	
 
 	//add new cashflow passive
-	void cashflow_add_passive(
+	void cashflow_passive_new(
 			const char * filepath,
 			const char * cashflow_uuid,
 			CP_TYPE type,
-			char title[128],
 			int cost,
 			int expenses,
 			void * user_data,
