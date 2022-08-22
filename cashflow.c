@@ -745,9 +745,9 @@ struct cashflow_add_child_data {
 	int (*callback)(void * user_data, cashflow_passive_t * cashflow_passive, char * error);
 };
 
-int get_cashflow_callback(void * user_data, cashflow_t * _cashflow, char * error){
-	cashflow_t * cashflow = user_data;
-	*cashflow = *_cashflow;
+int get_child_cost_callback(void * user_data, cashflow_t * cashflow, char * error){
+	int * child_cost = user_data;
+	*child_cost = cashflow->child_cost;
 	return 0; //stop execution
 }
 
@@ -763,13 +763,13 @@ cashflow_add_child(
 			)
 		)
 {
-	//get cashflow - to find child cost
-	cashflow_t cashflow;
-	cashflow_for_each(filepath, STR("uuid == '%s'", cashflow_uuid), &cashflow, get_cashflow_callback);
+	//get  child cost
+	int child_cost = -1;
+	cashflow_for_each(filepath, STR("uuid == '%s'", cashflow_uuid), &child_cost, get_child_cost_callback);
 
-	if (strlen(cashflow.uuid) < 1){
+	if (child_cost < 1){
 		if (callback)
-			callback(user_data, NULL, STR("cashflow: can't get cashflow for uuid: %s", cashflow_uuid));
+			callback(user_data, NULL, STR("cashflow: can't get child_cost for uuid: %s", cashflow_uuid));
 		return;
 	}
 
@@ -779,7 +779,7 @@ cashflow_add_child(
 		.user_data = user_data,
 		.callback = callback
 	};
-	cashflow_passive_new(t.filepath, cashflow_uuid, CP_CHILD, 0, cashflow.child_cost, t.user_data, t.callback);
+	cashflow_passive_new(t.filepath, cashflow_uuid, CP_CHILD, 0, child_cost, t.user_data, t.callback);
 }	
 
 int
