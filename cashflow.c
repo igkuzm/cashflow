@@ -748,7 +748,7 @@ struct cashflow_add_child_data {
 int get_child_cost_callback(void * user_data, cashflow_t * cashflow, char * error){
 	int * child_cost = user_data;
 	*child_cost = cashflow->child_cost;
-	return 0; //stop execution
+	return 1; //stop execution
 }
 
 void 
