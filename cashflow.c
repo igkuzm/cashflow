@@ -423,9 +423,10 @@ int cashflow_active_for_each_callback(void *user_data, int argc, char *argv[], c
 			case 2:  item.date = atoi(buff)              ; break;
 			case 3:  item.type = atoi(buff)              ; break;
 			case 4:  strcpy(item.title, buff)            ; break;
-			case 5:  item.downpayment = atoi(buff)		 ; break;
-			case 6:  item.cost = atoi(buff)			     ; break;
-			case 7:  item.income = atoi(buff)			 ; break;
+			case 5:  item.count = atoi(buff)		     ; break;
+			case 6:  item.downpayment = atoi(buff)		 ; break;
+			case 7:  item.cost = atoi(buff)			     ; break;
+			case 8:  item.income = atoi(buff)			 ; break;
 
 			default:                                       break;
 		}
