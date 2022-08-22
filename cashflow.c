@@ -665,6 +665,8 @@ cashflow_passive_for_each(
 	if (predicate)
 		strcat(SQL, predicate);	
 	
+	callback(user_data, NULL, STR("SQL: %s\n", SQL)); //log
+	
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_passive_for_each_callback)){
 		if (callback)
 			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
