@@ -454,7 +454,7 @@ cashflow_active_for_each(
 		.callback = callback
 	};
 
-	if (predicate)
+	if (!predicate)
 		predicate = "";	
 	char SQL[BUFSIZ];
 	sprintf(SQL, "SELECT * FROM cashflow_actives %s", predicate);
