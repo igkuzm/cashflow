@@ -774,7 +774,7 @@ cashflow_add_child(
 	}
 
 	//add passive
-	cashflow_passive_new(filepath, uuid, CP_CHILD, 0, child_cost, user_data, callback);
+	//cashflow_passive_new(filepath, uuid, CP_CHILD, 0, child_cost, user_data, callback);
 }	
 
 int
