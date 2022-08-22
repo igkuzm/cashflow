@@ -303,8 +303,8 @@ cashflow_for_each(
 	};
 	
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_for_each_callback)){
-		if (callback)
-			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
+		/*if (callback)*/
+			/*callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));*/
 		return;
 	}
 }
