@@ -765,7 +765,7 @@ cashflow_add_child(
 {
 	//get  child cost
 	int child_cost = -1;
-	cashflow_for_each(filepath, STR("uuid == '%s'", cashflow_uuid), &child_cost, get_child_cost_callback);
+	cashflow_for_each(filepath, STR("WHERE uuid == '%s'", cashflow_uuid), &child_cost, get_child_cost_callback);
 
 	if (child_cost < 1){
 		if (callback)
