@@ -154,7 +154,7 @@ extern "C"{
 			const char * filepath,
 			const char * cashflow_uuid,
 			CA_TYPE type,
-			char title[128],
+			const char * title,
 			int count,
 			int downpayment,
 			int cost,
