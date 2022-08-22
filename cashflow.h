@@ -59,6 +59,7 @@ extern "C"{
 		time_t date;
 		CA_TYPE type;
 		char title[128];
+		int count;
 		int downpayment;
 		int cost;
 		int income;
@@ -154,6 +155,7 @@ extern "C"{
 			const char * cashflow_uuid,
 			CA_TYPE type,
 			char title[128],
+			int count,
 			int downpayment,
 			int cost,
 			int income,
@@ -177,7 +179,14 @@ extern "C"{
 				)
 			);	
 
-	int cashflow_remove_active(
+	int cashflow_active_set_value_for_key(
+			const char * filepath,
+			const char * uuid,
+			const char * value,
+			const char * key
+			);	
+
+	int cashflow_active_remove(
 			const char * filepath,
 			const char * uuid
 			);	
