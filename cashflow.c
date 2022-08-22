@@ -48,6 +48,7 @@ int cashflow_database_init(const char *filepath){
 		"date INT, "
 		"type INT, "
 		"title TEXT, "
+		"count INT, "
 		"downpayment INT, "
 		"cost INT, "
 		"income INT "
@@ -452,12 +453,9 @@ cashflow_active_for_each(
 		.callback = callback
 	};
 
-	char SQL[BUFSIZ];
-	if (predicate) {
-		sprintf(SQL, "SELECT * FROM cashflow_actives %s", predicate);	
-	} else {
-	   	sprintf(SQL, "SELECT * FROM cashflow_actives");
-	}
+	char SQL[BUFSIZ] = "SELECT * FROM cashflow_actives ";
+	if (predicate)
+		strcat(SQL, predicate);	
 	
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_active_for_each_callback)){
 		if (callback)
@@ -472,6 +470,7 @@ cashflow_active_new(
 		const char * cashflow_uuid,
 		CA_TYPE type,
 		char title[128],
+		int count,
 		int downpayment,
 		int cost,
 		int income,
@@ -495,6 +494,7 @@ cashflow_active_new(
 	}
 	
 	cashflow_active_t cashflow_active = {
+		.count = count,
 		.downpayment = downpayment,
 		.cost = cost,
 		.income = income
@@ -514,6 +514,7 @@ cashflow_active_new(
 			"date, "
 			"type, "
 			"title, "
+			"count, "
 			"downpayment, "
 			"cost, "
 			"income"
@@ -527,6 +528,7 @@ cashflow_active_new(
 			"'%s', "
 			"%d, "
 			"%d, "
+			"%d, "
 			"%d "
 			")",
 			cashflow_active.uuid,
@@ -534,6 +536,7 @@ cashflow_active_new(
 			cashflow_active.date,
 			cashflow_active.type,
 			cashflow_active.title,
+			cashflow_active.count,
 			cashflow_active.downpayment,
 			cashflow_active.cost,
 			cashflow_active.income
@@ -550,7 +553,20 @@ cashflow_active_new(
 }
 
 int
-cashflow_remove_active(
+cashflow_active_set_value_for_key(
+		const char * filepath,
+		const char * uuid,
+		const char * value,
+		const char * key
+		)
+{
+	char SQL[BUFSIZ];
+	sprintf(SQL, "UPDATE cashflow_actives SET %s = '%s' WHERE uuid = '%s'", key, value, uuid);
+	return sqlite_connect_execute(SQL, filepath);
+}
+
+int
+cashflow_active_remove(
 		const char * filepath,
 		const char * uuid)
 {
