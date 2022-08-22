@@ -767,7 +767,7 @@ cashflow_add_child(
 	int child_cost = -1;
 	cashflow_for_each(filepath, STR("WHERE uuid == '%s'", uuid), &child_cost, get_child_cost_callback);
 
-	if (child_cost < 1){
+	if (child_cost < 0){
 		if (callback)
 			callback(user_data, NULL, STR("cashflow: can't get child_cost for uuid: %s", uuid));
 		return;
