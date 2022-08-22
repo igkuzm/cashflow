@@ -458,6 +458,8 @@ cashflow_active_for_each(
 		predicate = "";	
 	char SQL[BUFSIZ];
 	sprintf(SQL, "SELECT * FROM cashflow_actives %s", predicate);
+			
+	callback(user_data, NULL, STR("SQL: %s\n", SQL)); //log
 	
 	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_active_for_each_callback)){
 		if (callback)
