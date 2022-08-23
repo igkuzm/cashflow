@@ -2,7 +2,7 @@
  * File              : cashflow.c
  * Author            : Igor V. Sementsov <ig.kuzm@gmail.com>
  * Date              : 13.06.2022
- * Last Modified Date: 22.08.2022
+ * Last Modified Date: 23.08.2022
  * Last Modified By  : Igor V. Sementsov <ig.kuzm@gmail.com>
  */
 
@@ -824,3 +824,30 @@ cashflow_passive_remove(
 	return sqlite_connect_execute(SQL, filepath);	
 }
 #pragma endregion <CASHFLOW PASSIVE>
+
+#pragma region <CASHFLOW BIGCIRCLE>
+	void cashflow_bigcircle_for_each(
+			const char * filepath,
+			const char * predicate,
+			void * user_data,
+			int (*callback)(
+				void * user_data,
+				cashflow_bigcircle_t * bigcircle,
+				char * error
+				)
+			);	
+	
+	//set value for key
+	int cashflow_bigcircle_set_value_for_key(
+			const char * filepath,
+			const char * uuid,
+			const char * value,
+			const char * key
+			);	
+	
+
+	int cashflow_bigcircle_remove(
+			const char * filepath,
+			const char * uuid
+			);		
+#pragma endregion <CASHFLOW ACTIVE>
