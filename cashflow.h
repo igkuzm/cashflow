@@ -252,6 +252,32 @@ extern "C"{
 			);	
 		
 
+	//execute callback for each cashflow bigcircle	
+	void cashflow_bigcircle_for_each(
+			const char * filepath,
+			const char * predicate,
+			void * user_data,
+			int (*callback)(
+				void * user_data,
+				cashflow_bigcircle_t * bigcircle,
+				char * error
+				)
+			);	
+	
+	//set value for key
+	int cashflow_bigcircle_set_value_for_key(
+			const char * filepath,
+			const char * uuid,
+			const char * value,
+			const char * key
+			);	
+	
+
+	int cashflow_bigcircle_remove(
+			const char * filepath,
+			const char * uuid
+			);		
+
 #ifdef __cplusplus
 }
 #endif
