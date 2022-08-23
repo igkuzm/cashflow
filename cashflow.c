@@ -78,7 +78,7 @@ int cashflow_database_init(const char *filepath){
 
 	SQL = 
 		"CREATE TABLE IF NOT EXISTS "
-		"cashflow_bigcircel "
+		"cashflow_bigcircle "
 		"( "
 		"uuid TEXT, "
 		"cashflow_uuid TEXT, "
