@@ -76,6 +76,21 @@ int cashflow_database_init(const char *filepath){
 	if (res)
 		return res;		
 
+	SQL = 
+		"CREATE TABLE IF NOT EXISTS "
+		"cashflow_bigcircel "
+		"( "
+		"uuid TEXT, "
+		"cashflow_uuid TEXT, "
+		"date INT, "
+		"income INT "
+		")"
+		;
+	
+	res = sqlite_connect_execute(SQL, filepath);
+	if (res)
+		return res;	
+
 	return 0;
 }
 
@@ -826,6 +841,88 @@ cashflow_passive_remove(
 #pragma endregion <CASHFLOW PASSIVE>
 
 #pragma region <CASHFLOW BIGCIRCLE>
+	void cashflow_bigcircle_new(
+			const char * filepath,
+			const char * cashflow_uuid,
+			const char * title,
+			int income,
+			void * user_data,
+			int (*callback)(
+				void * user_data,
+				cashflow_bigcircle_t * bigcircle,
+				char * error
+				)
+			)
+{
+	//create uuid
+	char uuid[37];
+	UUID4_STATE_T state; UUID4_T identifier;
+	uuid4_seed(&state);
+	uuid4_gen(&state, &identifier);
+	if (!uuid4_to_s(identifier, uuid, 37)){
+		if (callback)
+			callback(user_data, NULL, "cashflow: Can't genarate UUID\n");
+		return;
+	}
+	
+	cashflow_active_t cashflow_active = {
+		.count = count,
+		.downpayment = downpayment,
+		.cost = cost,
+		.income = income
+	};
+	cashflow_active.date = time(NULL);
+	strcpy(cashflow_active.uuid, uuid);
+	strcpy(cashflow_active.cashflow_uuid, cashflow_uuid);
+	cashflow_active.type = type;
+	strcpy(cashflow_active.title, title);
+
+	char SQL[BUFSIZ];
+	sprintf(SQL, 
+			"INSERT INTO cashflow_actives "
+			"("
+			"uuid, "
+			"cashflow_uuid, "
+			"date, "
+			"type, "
+			"title, "
+			"count, "
+			"downpayment, "
+			"cost, "
+			"income"
+			") "
+			"VALUES "
+			"("
+			"'%s', "
+			"'%s', "
+			"%ld, "
+			"%d, "
+			"'%s', "
+			"%d, "
+			"%d, "
+			"%d, "
+			"%d "
+			")",
+			cashflow_active.uuid,
+			cashflow_active.cashflow_uuid,
+			cashflow_active.date,
+			cashflow_active.type,
+			cashflow_active.title,
+			cashflow_active.count,
+			cashflow_active.downpayment,
+			cashflow_active.cost,
+			cashflow_active.income
+			);
+
+	if (sqlite_connect_execute(SQL, filepath)){
+		if (callback)
+			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
+		return;
+	}
+
+	if (callback)
+		callback(user_data, &cashflow_active, NULL);	
+}
 	void cashflow_bigcircle_for_each(
 			const char * filepath,
 			const char * predicate,
