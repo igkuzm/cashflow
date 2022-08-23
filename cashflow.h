@@ -2,7 +2,7 @@
  * File              : cashflow.h
  * Author            : Igor V. Sementsov <ig.kuzm@gmail.com>
  * Date              : 13.06.2022
- * Last Modified Date: 22.08.2022
+ * Last Modified Date: 23.08.2022
  * Last Modified By  : Igor V. Sementsov <ig.kuzm@gmail.com>
  */
 
@@ -84,6 +84,14 @@ extern "C"{
 		int cost;
 		int expenses;
 	} cashflow_passive_t;
+
+	typedef struct cashflow_bigcircle_t {
+		char uuid[37];
+		char cashflow_uuid[37];
+		time_t date;		
+		char title[128];
+		int income;
+	} cashflow_bigcircle_t;	
 
 	//create (if not exists) SQLite databese in filepath and init its structure
 	int cashflow_database_init(const char * filepath);
