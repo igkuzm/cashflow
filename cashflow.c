@@ -838,17 +838,17 @@ cashflow_passive_remove(
 
 #pragma region <CASHFLOW BIGCIRCLE>
 void cashflow_bigcircle_new(
-			const char * filepath,
-			const char * cashflow_uuid,
-			const char * title,
-			int income,
+		const char * filepath,
+		const char * cashflow_uuid,
+		const char * title,
+		int income,
+		void * user_data,
+		int (*callback)(
 			void * user_data,
-			int (*callback)(
-				void * user_data,
-				cashflow_bigcircle_t * bigcircle,
-				char * error
-				)
+			cashflow_bigcircle_t * bigcircle,
+			char * error
 			)
+		)
 {
 	//create uuid
 	char uuid[37];
@@ -939,15 +939,15 @@ int cashflow_bigcircle_for_each_callback(void *user_data, int argc, char *argv[]
 }
 
 void cashflow_bigcircle_for_each(
-			const char * filepath,
-			const char * predicate,
+		const char * filepath,
+		const char * predicate,
+		void * user_data,
+		int (*callback)(
 			void * user_data,
-			int (*callback)(
-				void * user_data,
-				cashflow_bigcircle_t * bigcircle,
-				char * error
-				)
+			cashflow_bigcircle_t * bigcircle,
+			char * error
 			)
+		)
 {
 
 	struct cashflow_bigcircle_for_each_data t = {
@@ -967,17 +967,27 @@ void cashflow_bigcircle_for_each(
 
 }
 	
-	//set value for key
-	int cashflow_bigcircle_set_value_for_key(
-			const char * filepath,
-			const char * uuid,
-			const char * value,
-			const char * key
-			);	
+//set value for key
+int cashflow_bigcircle_set_value_for_key(
+		const char * filepath,
+		const char * uuid,
+		const char * value,
+		const char * key
+		)
+{
+	char SQL[BUFSIZ];
+	sprintf(SQL, "UPDATE cashflow_bigcircle SET %s = '%s' WHERE uuid = '%s'", key, value, uuid);
+	return sqlite_connect_execute(SQL, filepath);
+}	
 	
+int cashflow_bigcircle_remove(
+		const char * filepath,
+		const char * uuid
+		)
+{
+	char SQL[BUFSIZ];
+	sprintf(SQL, "DELETE FROM cashflow_bigcircle WHERE uuid = '%s'", uuid);
 
-	int cashflow_bigcircle_remove(
-			const char * filepath,
-			const char * uuid
-			);		
+	return sqlite_connect_execute(SQL, filepath);	
+}	
 #pragma endregion <CASHFLOW ACTIVE>
