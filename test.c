@@ -2,11 +2,11 @@
  * File              : test.c
  * Author            : Igor V. Sementsov <ig.kuzm@gmail.com>
  * Date              : 03.05.2022
- * Last Modified Date: 21.08.2022
+ * Last Modified Date: 23.08.2022
  * Last Modified By  : Igor V. Sementsov <ig.kuzm@gmail.com>
  */
 
-#include "klib/chworkdir.h"
+#include "chworkdir.h"
 #include "cashflow.h"
 #include <stdio.h>
 
