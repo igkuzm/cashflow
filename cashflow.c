@@ -841,7 +841,7 @@ cashflow_passive_remove(
 #pragma endregion <CASHFLOW PASSIVE>
 
 #pragma region <CASHFLOW BIGCIRCLE>
-	void cashflow_bigcircle_new(
+void cashflow_bigcircle_new(
 			const char * filepath,
 			const char * cashflow_uuid,
 			const char * title,
@@ -865,30 +865,22 @@ cashflow_passive_remove(
 		return;
 	}
 	
-	cashflow_active_t cashflow_active = {
-		.count = count,
-		.downpayment = downpayment,
-		.cost = cost,
+	cashflow_bigcircle_t bigcircle = {
 		.income = income
 	};
-	cashflow_active.date = time(NULL);
-	strcpy(cashflow_active.uuid, uuid);
-	strcpy(cashflow_active.cashflow_uuid, cashflow_uuid);
-	cashflow_active.type = type;
-	strcpy(cashflow_active.title, title);
+	bigcircle.date = time(NULL);
+	strcpy(bigcircle.uuid, uuid);
+	strcpy(bigcircle.cashflow_uuid, cashflow_uuid);
+	strcpy(bigcircle.title, title);
 
 	char SQL[BUFSIZ];
 	sprintf(SQL, 
-			"INSERT INTO cashflow_actives "
+			"INSERT INTO cashflow_bigcircle "
 			"("
 			"uuid, "
 			"cashflow_uuid, "
 			"date, "
-			"type, "
 			"title, "
-			"count, "
-			"downpayment, "
-			"cost, "
 			"income"
 			") "
 			"VALUES "
@@ -896,22 +888,14 @@ cashflow_passive_remove(
 			"'%s', "
 			"'%s', "
 			"%ld, "
-			"%d, "
 			"'%s', "
-			"%d, "
-			"%d, "
-			"%d, "
 			"%d "
 			")",
-			cashflow_active.uuid,
-			cashflow_active.cashflow_uuid,
-			cashflow_active.date,
-			cashflow_active.type,
-			cashflow_active.title,
-			cashflow_active.count,
-			cashflow_active.downpayment,
-			cashflow_active.cost,
-			cashflow_active.income
+			bigcircle.uuid,
+			bigcircle.cashflow_uuid,
+			bigcircle.date,
+			bigcircle.title,
+			bigcircle.income
 			);
 
 	if (sqlite_connect_execute(SQL, filepath)){
@@ -921,9 +905,44 @@ cashflow_passive_remove(
 	}
 
 	if (callback)
-		callback(user_data, &cashflow_active, NULL);	
+		callback(user_data, &bigcircle, NULL);	
 }
-	void cashflow_bigcircle_for_each(
+
+struct cashflow_bigcircle_for_each_data {
+	void * user_data;
+	int (*callback)(void * user_data, cashflow_bigcircle_t * bigcircle, char * error);
+};
+
+int cashflow_bigcircle_for_each_callback(void *user_data, int argc, char *argv[], char *titles[]){
+	struct cashflow_bigcircle_for_each_data *t = user_data;
+	struct cashflow_bigcircle_t item;
+
+	for (int i = 0; i < argc; ++i) {
+		char buff[128];
+		if (!argv[i]) buff[0] = '\0'; //no seg falt on null
+		else {
+			strncpy(buff, argv[i], 127);
+			buff[127] = '\0';
+		}
+
+		switch (i) {
+			case 0:  strcpy(item.uuid, buff)             ; break;
+			case 1:  strcpy(item.cashflow_uuid, buff)    ; break;
+			case 2:  item.date = atoi(buff)              ; break;
+			case 3:  strcpy(item.title, buff)            ; break;
+			case 4:  item.income = atoi(buff)			 ; break;
+
+			default:                                       break;
+		}
+	}
+
+	if (t->callback)
+		return t->callback(t->user_data, &item, NULL);
+
+	return 0;
+}
+
+void cashflow_bigcircle_for_each(
 			const char * filepath,
 			const char * predicate,
 			void * user_data,
@@ -932,7 +951,25 @@ cashflow_passive_remove(
 				cashflow_bigcircle_t * bigcircle,
 				char * error
 				)
-			);	
+			)
+{
+
+	struct cashflow_bigcircle_for_each_data t = {
+		.user_data = user_data,
+		.callback = callback
+	};
+
+	char SQL[BUFSIZ] = "SELECT * FROM cashflow_bigcircle ";
+	if (predicate)
+		strcat(SQL, predicate);	
+			
+	if (sqlite_connect_execute_function(SQL, filepath, &t, cashflow_bigcircle_for_each_callback)){
+		if (callback)
+			callback(user_data, NULL, STR("cashflow: Can't execute SQL: %s\n", SQL));
+		return;
+	}	
+
+}
 	
 	//set value for key
 	int cashflow_bigcircle_set_value_for_key(
