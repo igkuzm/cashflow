@@ -83,6 +83,7 @@ int cashflow_database_init(const char *filepath){
 		"uuid TEXT, "
 		"cashflow_uuid TEXT, "
 		"date INT, "
+		"title TEXT, "
 		"income INT "
 		")"
 		;
