@@ -253,6 +253,18 @@ extern "C"{
 		
 
 	//execute callback for each cashflow bigcircle	
+	void cashflow_bigcircle_new(
+			const char * filepath,
+			const char * cashflow_uuid,
+			const char * title,
+			int income,
+			void * user_data,
+			int (*callback)(
+				void * user_data,
+				cashflow_bigcircle_t * bigcircle,
+				char * error
+				)
+			);	
 	void cashflow_bigcircle_for_each(
 			const char * filepath,
 			const char * predicate,
