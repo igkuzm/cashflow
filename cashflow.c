@@ -2,7 +2,7 @@
  * File              : cashflow.c
  * Author            : Igor V. Sementsov <ig.kuzm@gmail.com>
  * Date              : 13.06.2022
- * Last Modified Date: 23.08.2022
+ * Last Modified Date: 25.08.2022
  * Last Modified By  : Igor V. Sementsov <ig.kuzm@gmail.com>
  */
 
@@ -209,7 +209,7 @@ void cashflow_get_sql_request(
     /*some_credits*/     ", (SELECT IFNULL(SUM(expenses),0) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = '%s')"
     /*other_expenses*/   ", other_expenses"
     /*child_cost*/       ", child_cost" 
-    /*children_expenses*/", (SELECT IFNULL(SUM(expenses),0) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = '%s')"
+    /*children_expenses*/", (SELECT COUNT(uuid) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = '%s') * child_cost"
     /*bank_credit*/      ", (SELECT IFNULL(SUM(expenses),0) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = '%s')"
     /*child_count*/      ", (SELECT COUNT(uuid) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = '%s')"
 
@@ -217,7 +217,7 @@ void cashflow_get_sql_request(
 
 	/*total_income*/    ", (salary + (SELECT IFNULL(SUM(income),0) FROM cashflow_actives WHERE cashflow_uuid = '%s'))"
 
-    /*total_expenses*/   ", taxes + other_expenses + (SELECT IFNULL(SUM(expenses),0) FROM cashflow_passives WHERE cashflow_uuid = '%s')"
+    /*total_expenses*/   ", taxes + other_expenses + (SELECT IFNULL(SUM(expenses),0) FROM cashflow_passives WHERE cashflow_uuid = '%s') + ((SELECT COUNT(uuid) FROM cashflow_passives WHERE type = %d AND cashflow_uuid = '%s') * child_cost)"
 
     /*cashflow*/         ", (salary + (SELECT IFNULL(SUM(income),0) FROM cashflow_actives WHERE cashflow_uuid = '%s')) - (taxes + other_expenses + (SELECT IFNULL(SUM(expenses),0) FROM cashflow_passives WHERE cashflow_uuid = '%s'))"
 
@@ -235,7 +235,7 @@ void cashflow_get_sql_request(
 						 ,CP_CHILD, uuid	
 						 ,uuid
 						 ,uuid
-						 ,uuid
+						 ,uuid, CP_CHILD, uuid 
 						 ,uuid, uuid
 			
 						 ,predicate
@@ -772,20 +772,6 @@ cashflow_passive_new(
 
 }
 
-struct cashflow_add_child_data {
-	char * filepath;
-	void * user_data;
-	int (*callback)(void * user_data, cashflow_passive_t * cashflow_passive, char * error);
-};
-
-int get_child_cost_callback(void * user_data, cashflow_t * cashflow, char * error){
-	if (!error){
-		int * child_cost = user_data;
-		*child_cost = cashflow->child_cost;
-	}
-	return 1;
-}
-
 void 
 cashflow_add_child(
 		const char * filepath,
@@ -798,18 +784,8 @@ cashflow_add_child(
 			)
 		)
 {
-	//get  child cost
-	int child_cost = -1;
-	cashflow_for_each(filepath, STR("WHERE uuid == '%s'", uuid), &child_cost, get_child_cost_callback);
-
-	if (child_cost < 0){
-		if (callback)
-			callback(user_data, NULL, STR("cashflow: can't get child_cost for uuid: %s", uuid));
-		return;
-	}
-
 	//add passive
-	cashflow_passive_new(filepath, uuid, CP_CHILD, 0, child_cost, user_data, callback);
+	cashflow_passive_new(filepath, uuid, CP_CHILD, 0, 0, user_data, callback);
 }	
 
 int
